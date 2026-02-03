@@ -3,6 +3,9 @@
 import os
 import time
 import subprocess
+import platform
+
+rsafix = "-o HostKeyAlgorithms=+ssh-rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 
 def recovery():
     print("[*] Sending device to recovery mode...")
@@ -54,12 +57,22 @@ def preparedsk():
     print("[*] Waiting 60 seconds for ramdisk to boot and run server")
     time.sleep(60)
 
-    input("[*] Please press Enter after running the command: 'tools/iproxy 2222 44'")
+    #iproxy, testing stuff
+
+    print("[*] Starting iProxy in background....")
+
+    iproxy = subprocess.Popen(["tools/iproxy", "2222", "44"], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+    time.sleep(5)
+
+    os.system(f"output=$(tools/sshpass -p 'alpine' ssh -o StrictHostKeyChecking=no -l root {rsafix} -p 2222 127.0.0.1 'echo test'); if [ \"$output\" == \"\" ]; then sleep 5; exit; fi")
+
+    os.system(f"tools/sshpass -p 'alpine' ssh -o StrictHostKeyChecking=no -l root {rsafix} -p 2222 127.0.0.1 'echo test'")
+
 
     # prepre nand
     subprocess.run([
         "sshpass", "-p", "alpine",
-        "ssh", "-p", "2222", "-tt",
+        "ssh", rsafix, "-p", "2222", "-tt",
         "-o", "StrictHostKeyChecking=no",
         "-o", "UserKnownHostsFile=/dev/null",
         "-o", "UserKnownHostsFile=/dev/null",
@@ -71,19 +84,17 @@ def preparedsk():
     # reboot
     subprocess.run([
         "sshpass", "-p", "alpine",
-        "ssh", "-p", "2222",
+        "ssh", rsafix, "-p", "2222",
         "-o", "StrictHostKeyChecking=no",
         "-o", "UserKnownHostsFile=/dev/null",
         "-o", "UserKnownHostsFile=/dev/null",
         "root@localhost", "/sbin/reboot"
     ], check=True)
 
-    print("[*] Done preparing NAND! Please enter DFU mode again.")
+    iproxy.terminate()
 
     # DFU Helper
     os.system("tools/dfuhelper.sh")
-
-    input("[*] Press Enter once you have quit iProxy ")
 
 
 def send_fs():
@@ -92,11 +103,21 @@ def send_fs():
     print("[*] Waiting 60 seconds for ramdisk to boot and run server")
     time.sleep(60)
 
-    input("[*] Please press Enter after running the command: 'tools/iproxy 2222 44'")
+    #iproxy, testing stuff
+
+    print("[*] Starting iProxy in background....")
+
+    iproxy = subprocess.Popen(["tools/iproxy", "2222", "44"], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+    time.sleep(5)
+
+    os.system("output=$(tools/sshpass -p 'alpine' ssh -o StrictHostKeyChecking=no -l root -p 2222 127.0.0.1 'echo test'); if [ \"$output\" == \"\" ]; then sleep 5; exit; fi")
+
+    os.system("tools/sshpass -p 'alpine' ssh -l root -p 2222 127.0.0.1 'echo test'")
+
 
     # mm partition!
     partition_cmd = "printf 'n\\n1\\n\\n786438\\n\\nn\\n2\\n\\n\\n\\nw\\ny\\n' | gptfdisk /dev/rdisk0s1"
-    subprocess.run(["sshpass", "-p", "alpine", "ssh", "-p", "2222",
+    subprocess.run(["sshpass", "-p", "alpine", "ssh", rsafix, "-p", "2222",
                     "-o", "StrictHostKeyChecking=no",
                     "-o", "UserKnownHostsFile=/dev/null",
                     "root@localhost", partition_cmd], check=True)
@@ -104,18 +125,18 @@ def send_fs():
     time.sleep(5)
 
     # a bunch of syncs (or 2)
-    subprocess.run(["sshpass", "-p", "alpine", "ssh", "-p", "2222",
+    subprocess.run(["sshpass", "-p", "alpine", "ssh", rsafix, "-p", "2222",
                     "-o", "StrictHostKeyChecking=no",
                     "-o", "UserKnownHostsFile=/dev/null",
                     "root@localhost", "sync"], check=True)
 
-    subprocess.run(["sshpass", "-p", "alpine", "ssh", "-p", "2222",
+    subprocess.run(["sshpass", "-p", "alpine", "ssh", rsafix, "-p", "2222",
                     "-o", "StrictHostKeyChecking=no",
                     "-o", "UserKnownHostsFile=/dev/null",
                     "root@localhost", "sync"], check=True)
 
     # 4mat da nand ig
-    subprocess.run(["sshpass", "-p", "alpine", "ssh", "-p", "2222",
+    subprocess.run(["sshpass", "-p", "alpine", "ssh", rsafix, "-p", "2222",
                     "-o", "StrictHostKeyChecking=no",
                     "-o", "UserKnownHostsFile=/dev/null",
                     "root@localhost",
@@ -124,7 +145,7 @@ def send_fs():
     time.sleep(2)
 
     # format data
-    subprocess.run(["sshpass", "-p", "alpine", "ssh", "-p", "2222",
+    subprocess.run(["sshpass", "-p", "alpine", "ssh", rsafix, "-p", "2222",
                     "-o", "StrictHostKeyChecking=no",
                     "-o", "UserKnownHostsFile=/dev/null",
                     "root@localhost",
@@ -133,14 +154,14 @@ def send_fs():
     time.sleep(2)
 
     # time to mont
-    subprocess.run(["sshpass", "-p", "alpine", "ssh", "-p", "2222",
+    subprocess.run(["sshpass", "-p", "alpine", "ssh", rsafix, "-p", "2222",
                     "-o", "StrictHostKeyChecking=no",
                     "-o", "UserKnownHostsFile=/dev/null",
                     "root@localhost", "/sbin/mount_hfs /dev/disk0s1s1 /mnt1"], check=True)
 
     time.sleep(1)
 
-    subprocess.run(["sshpass", "-p", "alpine", "ssh", "-p", "2222",
+    subprocess.run(["sshpass", "-p", "alpine", "ssh", rsafix, "-p", "2222",
                     "-o", "StrictHostKeyChecking=no",
                     "-o", "UserKnownHostsFile=/dev/null",
                     "root@localhost", "/sbin/mount_hfs /dev/disk0s1s2 /mnt2"], check=True)
@@ -150,31 +171,31 @@ def send_fs():
     print("[*] Waiting 3 seconds")
     time.sleep(3)
 
-    subprocess.run(["sshpass", "-p", "alpine", "scp", "-P", "2222", "7.1.2/ios7.tar", "root@localhost:/mnt2"], check=True)
+    subprocess.run(["sshpass", "-p", "alpine", "scp", rsafix, "-P", "2222", "7.1.2/ios7.tar", "root@localhost:/mnt2"], check=True)
 
-    print("[*] Done sending filesystem! If it fails, try restarting downgrade process.")
+    print("[*] Done sending filesystem tarball! If it fails, try restarting downgrade process.")
     print()
 
     # move ios 7 tar && extract
-    subprocess.run(["sshpass", "-p", "alpine", "ssh", "-p", "2222", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "root@localhost", "tar -xvf /mnt2/ios7.tar -C /mnt1"], check=True)
-    subprocess.run(["sshpass", "-p", "alpine", "ssh", "-p", "2222", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "root@localhost", "mv -v /mnt1/private/var/* /mnt2"], check=True)
+    subprocess.run(["sshpass", "-p", "alpine", "ssh", rsafix, "-p", "2222", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "root@localhost", "tar -xvf /mnt2/ios7.tar -C /mnt1"], check=True)
+    subprocess.run(["sshpass", rsafix, "-p", "alpine", "ssh", "-p", "2222", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "root@localhost", "mv -v /mnt1/private/var/* /mnt2"], check=True)
 
     # make some stuff, i guess
-    subprocess.run(["sshpass", "-p", "alpine", "ssh", "-p", "2222", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "root@localhost", "mkdir -p /mnt2/keybags /mnt1/usr/local/standalone/firmware/Baseband"], check=True)
+    subprocess.run(["sshpass", "-p", "alpine", "ssh", rsafix, "-p", "2222", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "root@localhost", "mkdir -p /mnt2/keybags /mnt1/usr/local/standalone/firmware/Baseband"], check=True)
     time.sleep(1)
 
     # send stuff
-    subprocess.run(["sshpass", "-p", "alpine", "scp", "-O", "-r", "-P", "2222", "./keybags", "root@localhost:/mnt2/"], check=True)
-    subprocess.run(["sshpass", "-p", "alpine", "scp", "-O", "-r", "-P", "2222", "./Baseband", "root@localhost:/mnt1/usr/local/standalone/firmware/"], check=True)
-    subprocess.run(["sshpass", "-p", "alpine", "scp", "-O", "-P", "2222", "./apticket.der", "root@localhost:/mnt1/System/Library/Caches/"], check=True)
-    subprocess.run(["sshpass", "-p", "alpine", "scp", "-O", "-P", "2222", "./sep-firmware.img4", "root@localhost:/mnt1/usr/standalone/firmware/"], check=True)
-    subprocess.run(["sshpass", "-p", "alpine", "scp", "-O", "-P", "2222", "7.1.2/fstab", "root@localhost:/mnt1/etc/"], check=True)
+    subprocess.run(["sshpass", "-p", "alpine", "scp", rsafix, "-r", "-P", "2222", "./keybags", "root@localhost:/mnt2/"], check=True)
+    subprocess.run(["sshpass", "-p", "alpine", "scp", rsafix, "-r", "-P", "2222", "./Baseband", "root@localhost:/mnt1/usr/local/standalone/firmware/"], check=True)
+    subprocess.run(["sshpass", "-p", "alpine", "scp", rsafix, "-P", "2222", "./apticket.der", "root@localhost:/mnt1/System/Library/Caches/"], check=True)
+    subprocess.run(["sshpass", "-p", "alpine", "scp", rsafix, "-P", "2222", "./sep-firmware.img4", "root@localhost:/mnt1/usr/standalone/firmware/"], check=True)
+    subprocess.run(["sshpass", "-p", "alpine", "scp", rsafix, "-P", "2222", "7.1.2/fstab", "root@localhost:/mnt1/etc/"], check=True)
 
     time.sleep(1)
 
     # patching sum boot filez
 
-    subprocess.run(["sshpass", "-p", "alpine", "ssh", "-p", "2222", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "root@localhost", "/usr/sbin/chown -R root:wheel /mnt2/keybags && /bin/chmod -R 755 /mnt2/keybags"], check=True)
+    subprocess.run(["sshpass", "-p", "alpine", "ssh", rsafix, "-p", "2222", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "root@localhost", "/usr/sbin/chown -R root:wheel /mnt2/keybags && /bin/chmod -R 755 /mnt2/keybags"], check=True)
 
     # there we go
     subprocess.run(["sshpass", "-p", "alpine", "ssh", "-p", "2222", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "root@localhost", "/sbin/reboot"], check=True)
@@ -183,36 +204,54 @@ def send_fs():
     print()
     print("[*] Flashed filesystem and rebooted device")
 
-    input("[*] Press Enter once you have quit iProxy ")
+    iproxy.terminate()
 
 
 
 def collect_stuff():
 
-    input("[*] Please press Enter after running the command: 'tools/iproxy 2222 44'")
+    #iproxy, testing stuff
+
+    print("[*] Starting iProxy in background....")
+
+    iproxy = subprocess.Popen(["tools/iproxy", "2222", "22"], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+
+    os.system(f"output=$(tools/sshpass -p 'alpine' ssh -o StrictHostKeyChecking=no -l root {rsafix} -p 2222 127.0.0.1 'echo test'); if [ \"$output\" == \"\" ]; then sleep 5; exit; fi")
+
+    os.system(f"tools/sshpass -p 'alpine' ssh -l root {rsafix} -p 2222 127.0.0.1 'echo test'")
+
 
     time.sleep(10)
 
 
     print("[*] Dumping files from device...")
-    os.system("sshpass -p 'alpine' scp -P 2222 root@localhost:/System/Library/Caches/apticket.der ./apticket.der")
-    os.system("sshpass -p 'alpine' scp -P 2222 root@localhost:/usr/standalone/firmware/sep-firmware.img4 ./sep-firmware.img4")
-    os.system("sshpass -p 'alpine' scp -r -P 2222 root@localhost:/usr/local/standalone/firmware/Baseband ./Baseband")
-    os.system("sshpass -p 'alpine' scp -r -P 2222 root@localhost:/var/keybags ./keybags")
+    os.system(f"sshpass -p 'alpine' scp {rsafix} -P 2222 root@localhost:/System/Library/Caches/apticket.der ./apticket.der")
+    os.system(f"sshpass -p 'alpine' scp {rsafix} -P 2222 root@localhost:/usr/standalone/firmware/sep-firmware.img4 ./sep-firmware.img4")
+    os.system(f"sshpass -p 'alpine' scp {rsafix} -r -P 2222 root@localhost:/usr/local/standalone/firmware/Baseband ./Baseband")
+    os.system(f"sshpass -p 'alpine'  scp {rsafix} -r -P 2222 root@localhost:/var/keybags ./keybags")
     print("[*] Dump complete.")
 
-    input("[*] Press Enter once you have quit iProxy ")
+    iproxy.terminate()
 
 def hacktiv8():
 
     print("[*] Waiting 60 seconds for ramdisk to boot and run server")
     time.sleep(60)
 
-    input("[*] Please press Enter after running the command: 'tools/iproxy 2222 44'")
+    #iproxy, testing stuff
 
-    os.system("sshpass -p 'alpine' ssh -p 2222 -o StrictHostKeyChecking=no  -o UserKnownHostsFile=/dev/null root@localhost '/sbin/mount_hfs /dev/disk0s1s1 /mnt1 && mv /mnt1/Applications/Setup.app /mnt1/Applications/fuckYou_Setup && reboot'")
+    print("[*] Starting iProxy in background....")
 
-    input("[*] Press Enter once you have quit iProxy ")
+    iproxy = subprocess.Popen(["tools/iproxy", "2222", "44"], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+
+    os.system(f"output=$(tools/sshpass -p 'alpine' ssh -o StrictHostKeyChecking=no -l root {rsafix} -p 2222 127.0.0.1 'echo test'); if [ \"$output\" == \"\" ]; then sleep 5; exit; fi")
+
+    os.system(f"tools/sshpass -p 'alpine' ssh -l root {rsafix} -p 2222 127.0.0.1 'echo test'")
+
+
+    os.system(f"sshpass -p 'alpine' ssh {rsafix} -p 2222 -o StrictHostKeyChecking=no  -o UserKnownHostsFile=/dev/null root@localhost '/sbin/mount_hfs /dev/disk0s1s1 /mnt1 && mv /mnt1/Applications/Setup.app /mnt1/Applications/fuckYou_Setup && reboot'")
+
+    iproxy.terminate()
 
 
 
@@ -263,11 +302,38 @@ def boot():
 
 time.sleep(1)
 
+
+
+print("Starting sochiDG....")
+
+mac_ver = int(platform.mac_ver()[0].split('.')[0])
+
+os.system("clear")
+print("*** sochiDG ***")
+print("Script by Turlum25")
+print("Version 0.2")
+print()
+time.sleep(1)
+print("[*] Starting...")
+
+if mac_ver >= 12:
+    time.sleep(1)
+    print(f"[*] macOS Version: {mac_ver}.x")
+
+    time.sleep(2)
+else:
+    print(f"[-] macOS Version: {mac_ver}.x, Running compatibility mode.")
+    time.sleep(3)
+    os.system(f"python3 classic.py")
+    exit()
+
+
 while True:
+
     os.system("clear")
     print("*** sochiDG ***")
     print("Script by Turlum25")
-    print("Version 0.1")
+    print("Version 0.2")
     print()
     print("1 > Downgrade")
     print("2 > Hactivate iPhone")
@@ -279,6 +345,7 @@ while True:
 
     if main == "4":
         print("Exiting....")
+        time.sleep(2)
         os.system("clear")
         exit()
 
@@ -316,7 +383,6 @@ while True:
         ramdisk()
         input("[*] Press enter if you want to hacktivate your device. If not, please exit by pressing CTRL+C")
         hacktiv8()
-        input("[*] Press Enter once you have quit iProxy ")
 
     elif main == "3":
         os.system("tools/dfuhelper.sh")
