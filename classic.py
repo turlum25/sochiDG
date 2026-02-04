@@ -5,7 +5,6 @@ import time
 import subprocess
 import platform
 
-
 def recovery():
     print("[*] Sending device to recovery mode...")
     subprocess.run("tools/ideviceenterrecovery $(idevice_id -l)", shell=True)
@@ -65,7 +64,7 @@ def preparedsk():
 
     os.system("output=$(tools/sshpass -p 'alpine' ssh -o StrictHostKeyChecking=no -l root -p 2222 127.0.0.1 'echo test'); if [ \"$output\" == \"\" ]; then sleep 5; exit; fi")
 
-    os.system("tools/sshpass -p 'alpine' ssh -l root -p 2222 127.0.0.1 'echo test'")
+    os.system("tools/sshpass -p 'alpine' ssh -o StrictHostKeyChecking=no -l root -p 2222 127.0.0.1 'echo test'")
 
 
     # prepre nand
@@ -172,7 +171,7 @@ def send_fs():
 
     subprocess.run(["sshpass", "-p", "alpine", "scp", "-P", "2222", "7.1.2/ios7.tar", "root@localhost:/mnt2"], check=True)
 
-    print("[*] Done sending filesystem! If it fails, try restarting downgrade process.")
+    print("[*] Done sending filesystem tarball! If it fails, try restarting downgrade process.")
     print()
 
     # move ios 7 tar && extract
@@ -248,7 +247,7 @@ def hacktiv8():
     os.system("tools/sshpass -p 'alpine' ssh -l root -p 2222 127.0.0.1 'echo test'")
 
 
-    os.system("sshpass -p 'alpine' ssh -p 2222 -o StrictHostKeyChecking=no  -o UserKnownHostsFile=/dev/null root@localhost '/sbin/mount_hfs /dev/disk0s1s1 /mnt1 && mv /mnt1/Applications/Setup.app /mnt1/Applications/fuckYou_Setup && reboot'")
+    os.system("sshpass -p 'alpine' ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost '/sbin/mount_hfs /dev/disk0s1s1 /mnt1 && mv /mnt1/Applications/Setup.app /mnt1/Applications/fuckYou_Setup && reboot'")
 
     iproxy.terminate()
 
@@ -262,7 +261,7 @@ def make_im4m():
 
     if ".shsh2" in shsh2_file:
         print("[*] Converting .shsh2 file to IM4M... ")
-        os.system(f"tools/img4tool -e -s {shsh2_file} -m IM4M")
+        os.system("tools/img4tool -e -s " + shsh2_file + " -m IM4M")
 
 def boot():
     print("[*] Sending boot files...")
@@ -307,7 +306,17 @@ print("Starting sochiDG....")
 
 mac_ver = int(platform.mac_ver()[0].split('.')[0])
 
-print(f"[*] macOS Version: {mac_ver}.x")
+os.system("clear")
+print("*** sochiDG ***")
+print("Script by Turlum25")
+print("Version 0.2")
+print()
+time.sleep(1)
+print("[*] Starting...")
+
+time.sleep(1)
+print("[*] macOS Version: " + str(mac_ver) + ".x")
+
 time.sleep(2)
 
 while True:
@@ -315,7 +324,7 @@ while True:
     os.system("clear")
     print("*** sochiDG ***")
     print("Script by Turlum25")
-    print("Version 0.2-legacy")
+    print("Version 0.2.1-legacy")
     print()
     print("1 > Downgrade")
     print("2 > Hactivate iPhone")
@@ -327,6 +336,7 @@ while True:
 
     if main == "4":
         print("Exiting....")
+        time.sleep(2)
         os.system("clear")
         exit()
 
@@ -364,7 +374,6 @@ while True:
         ramdisk()
         input("[*] Press enter if you want to hacktivate your device. If not, please exit by pressing CTRL+C")
         hacktiv8()
-        input("[*] Press Enter once you have quit iProxy ")
 
     elif main == "3":
         os.system("tools/dfuhelper.sh")
