@@ -329,7 +329,7 @@ print()
 time.sleep(1)
 print("[*] Starting...")
 if args.debug:
-    print("[WARNING] You have enabled the --debug flag. Please make sure you are not trying to bypass Activation Lock before downgrading.")
+    print("[WARNING] You have enabled the --debug flag which is currently buggy at the moment.")
 
 if mac_ver >= 12:
     time.sleep(1)
