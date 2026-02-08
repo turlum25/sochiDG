@@ -22,6 +22,14 @@ Since some do not fit into the maximum GitHub file requirement:
 * Step 5: Hacktivate
 * Step 6: Profit
 
+# Activating iPhone after downgrade
+
+After booting into the setup screen, do the following:
+* Select your country
+* When in WiFi connection screen, click "Connect to iTunes" until the recovery mode logo appears (while not in recovery mode).
+* Go to Finder/iTunes and let it activate the iPhone
+* Profit
+
 # Pretty necessary stuff
 
 * The full downgrade folder will be 2.92 GB as downloading everything in the program might cause faliure in the process.
