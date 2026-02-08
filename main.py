@@ -1,11 +1,19 @@
 #!/usr/local/bin/python3
 
+# hecking
+
 import os
 import time
 import subprocess
 import platform
+import argparse
 
 rsafix = "-o HostKeyAlgorithms=+ssh-rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+
+
+parser = argparse.ArgumentParser(description="sochiDG")
+parser.add_argument("-d", "--debug", action="store_true", help="Enable debug mode")
+args = parser.parse_args()
 
 def recovery():
     print("[*] Sending device to recovery mode...")
@@ -16,7 +24,7 @@ def recovery():
 
 def ramdisk():
     print("[*] Sending ramdisk...")
-    pwn = os.popen("tools/ipwnder").read()
+    os.system("tools/ipwnder")
 
     ibss = "tools/irecovery -f ramdisk/iBSS.img4"
     ibec = "tools/irecovery -f ramdisk/iBEC.img4"
@@ -64,8 +72,7 @@ def preparedsk():
     iproxy = subprocess.Popen(["tools/iproxy", "2222", "44"], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
     time.sleep(5)
 
-    os.system(f"output=$(tools/sshpass -p 'alpine' ssh -o StrictHostKeyChecking=no -l root {rsafix} -p 2222 127.0.0.1 'echo test'); if [ \"$output\" == \"\" ]; then sleep 5; exit; fi")
-
+    os.system(f"timeout 5s sh -c \"output=$(tools/sshpass -p 'alpine' ssh -o StrictHostKeyChecking=no -l root {rsafix} -p 2222 127.0.0.1 'echo test'); if [ '$output' == '' ]; then sleep 5; fi\" || exit")
     os.system(f"tools/sshpass -p 'alpine' ssh -o StrictHostKeyChecking=no -l root {rsafix} -p 2222 127.0.0.1 'echo test'")
 
 
@@ -93,7 +100,7 @@ def preparedsk():
 
     iproxy.terminate()
 
-    # DFU Helper
+    # dfu thing
     os.system("tools/dfuhelper.sh")
 
 
@@ -216,7 +223,6 @@ def collect_stuff():
 
     iproxy = subprocess.Popen(["tools/iproxy", "2222", "22"], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 
-    os.system(f"output=$(tools/sshpass -p 'alpine' ssh -o StrictHostKeyChecking=no -l root {rsafix} -p 2222 127.0.0.1 'echo test'); if [ \"$output\" == \"\" ]; then sleep 5; exit; fi")
 
     os.system(f"tools/sshpass -p 'alpine' ssh -l root {rsafix} -p 2222 127.0.0.1 'echo test'")
 
@@ -230,26 +236,6 @@ def collect_stuff():
     os.system(f"sshpass -p 'alpine' scp {rsafix} -r -P 2222 root@localhost:/usr/local/standalone/firmware/Baseband ./Baseband")
     os.system(f"sshpass -p 'alpine'  scp {rsafix} -r -P 2222 root@localhost:/var/keybags ./keybags")
     print("[*] Dump complete.")
-
-    iproxy.terminate()
-
-def hacktiv8():
-
-    print("[*] Waiting 60 seconds for ramdisk to boot and run server")
-    time.sleep(60)
-
-    #iproxy, testing stuff
-
-    print("[*] Starting iProxy in background....")
-
-    iproxy = subprocess.Popen(["tools/iproxy", "2222", "44"], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
-
-    os.system(f"output=$(tools/sshpass -p 'alpine' ssh -o StrictHostKeyChecking=no -l root {rsafix} -p 2222 127.0.0.1 'echo test'); if [ \"$output\" == \"\" ]; then sleep 5; exit; fi")
-
-    os.system(f"tools/sshpass -p 'alpine' ssh -l root {rsafix} -p 2222 127.0.0.1 'echo test'")
-
-
-    os.system(f"sshpass -p 'alpine' ssh {rsafix} -p 2222 -o StrictHostKeyChecking=no  -o UserKnownHostsFile=/dev/null root@localhost '/sbin/mount_hfs /dev/disk0s1s1 /mnt1 && mv /mnt1/Applications/Setup.app /mnt1/Applications/fuckYou_Setup && reboot'")
 
     iproxy.terminate()
 
@@ -298,58 +284,7 @@ def boot():
     print("[*] Booted into iOS 7.1.2! ")
     exit()
 
-# main UI (finally)
-
-time.sleep(1)
-
-
-
-print("Starting sochiDG....")
-
-mac_ver = int(platform.mac_ver()[0].split('.')[0])
-
-os.system("clear")
-print("*** sochiDG ***")
-print("Script by Turlum25")
-print("Version 0.2")
-print()
-time.sleep(1)
-print("[*] Starting...")
-
-if mac_ver >= 12:
-    time.sleep(1)
-    print(f"[*] macOS Version: {mac_ver}.x")
-
-    time.sleep(2)
-else:
-    print(f"[-] macOS Version: {mac_ver}.x, Running compatibility mode.")
-    time.sleep(3)
-    os.system(f"python3 classic.py")
-    exit()
-
-
-while True:
-
-    os.system("clear")
-    print("*** sochiDG ***")
-    print("Script by Turlum25")
-    print("Version 0.2")
-    print()
-    print("1 > Downgrade")
-    print("2 > Hactivate iPhone")
-    print("3 > Boot iOS 7.1.2")
-    print("4 > Exit")
-    print("------------------")
-    print()
-    main= input("Select a number: ")
-
-    if main == "4":
-        print("Exiting....")
-        time.sleep(2)
-        os.system("clear")
-        exit()
-
-    elif main == "1":
+def downgrade():
         print()
         warning = input("[*] WARNING: This will erase all data from your device. Would you like to continue? (Y/n) ")
         if warning.lower() == "n":
@@ -376,14 +311,70 @@ while True:
             print("[*] Done cleaning up, quitting.")
             exit()
 
+# main UI (finally)
+
+time.sleep(1)
+
+
+
+print("Starting sochiDG....")
+
+mac_ver = int(platform.mac_ver()[0].split('.')[0])
+
+os.system("clear")
+print("*** sochiDG ***")
+print("Script by Turlum25")
+print("Version 0.3 (9065cdd)")
+print()
+time.sleep(1)
+print("[*] Starting...")
+if args.debug:
+    print("[WARNING] You have enabled the --debug flag. Please make sure you are not trying to bypass Activation Lock before downgrading.")
+
+if mac_ver >= 12:
+    time.sleep(1)
+    print(f"[*] macOS Version: {mac_ver}.x")
+
+    time.sleep(2)
+else:
+    print(f"[-] macOS Version: {mac_ver}.x, Running compatibility mode.")
+    time.sleep(3)
+    os.system(f"python3 classic.py")
+    exit()
+
+
+while True:
+
+    os.system("clear")
+    print("*** sochiDG ***")
+    print("Script by Turlum25")
+    print("Version 0.3 (9065cdd)")
+    print()
+    print("1 > Downgrade")
+    print("2 > Boot iOS 7.1.2")
+    print("3 > Exit")
+    print("------------------")
+    if args.debug:
+        print("Debug Tools: ")
+        print()
+        print("5 > SSH Ramdisk")
+    print()
+    main= input("Select a number: ")
+
+    if main == "3":
+        print("Exiting....")
+        time.sleep(2)
+        os.system("clear")
+        exit()
+
+    elif main == "1":
+        downgrade()
+
     elif main == "2":
-        print("[*] Sending device to recovery mode.")
+        os.system("tools/dfuhelper.sh")
+        boot()
+
+    elif args.debug and main == "5":
         recovery()
         os.system("tools/dfuhelper.sh")
         ramdisk()
-        input("[*] Press enter if you want to hacktivate your device. If not, please exit by pressing CTRL+C")
-        hacktiv8()
-
-    elif main == "3":
-        os.system("tools/dfuhelper.sh")
-        boot()
