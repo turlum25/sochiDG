@@ -1,9 +1,28 @@
 #!/usr/local/bin/python3
 
+# hecking
+
 import os
 import time
 import subprocess
 import platform
+import argparse
+
+
+
+cmd = [
+        "sshpass", "-p", "alpine", 
+        "scp", "-P", "2222", 
+        "-o", "StrictHostKeyChecking=no", 
+        "-o", "UserKnownHostsFile=/dev/null", 
+        "7.1.2/ios7.tar", 
+        "root@localhost:/mnt2"
+    ]
+
+
+parser = argparse.ArgumentParser(description="sochiDG")
+parser.add_argument("-d", "--debug", action="store_true", help="Enable debug mode")
+args = parser.parse_args()
 
 def recovery():
     print("[*] Sending device to recovery mode...")
@@ -13,8 +32,8 @@ def recovery():
 
 
 def ramdisk():
-    print("[*] Sending ramdisk...")
-    pwn = os.popen("tools/ipwnder").read()
+    print("[*] Entering pwnDFU with iPwnder")
+    os.system("tools/ipwnder")
 
     ibss = "tools/irecovery -f ramdisk/iBSS.img4"
     ibec = "tools/irecovery -f ramdisk/iBEC.img4"
@@ -62,8 +81,7 @@ def preparedsk():
     iproxy = subprocess.Popen(["tools/iproxy", "2222", "44"], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
     time.sleep(5)
 
-    os.system("output=$(tools/sshpass -p 'alpine' ssh -o StrictHostKeyChecking=no -l root -p 2222 127.0.0.1 'echo test'); if [ \"$output\" == \"\" ]; then sleep 5; exit; fi")
-
+    os.system("timeout 5s sh -c \"output=$(tools/sshpass -p 'alpine' ssh -o StrictHostKeyChecking=no -l root -p 2222 127.0.0.1 'echo test'); if [ '$output' == '' ]; then sleep 5; fi\" || exit")
     os.system("tools/sshpass -p 'alpine' ssh -o StrictHostKeyChecking=no -l root -p 2222 127.0.0.1 'echo test'")
 
 
@@ -91,7 +109,7 @@ def preparedsk():
 
     iproxy.terminate()
 
-    # DFU Helper
+    # dfu thing
     os.system("tools/dfuhelper.sh")
 
 
@@ -169,7 +187,7 @@ def send_fs():
     print("[*] Waiting 3 seconds")
     time.sleep(3)
 
-    subprocess.run(["sshpass", "-p", "alpine", "scp", "-P", "2222", "7.1.2/ios7.tar", "root@localhost:/mnt2"], check=True)
+    subprocess.run(cmd, check=True)
 
     print("[*] Done sending filesystem tarball! If it fails, try restarting downgrade process.")
     print()
@@ -188,9 +206,6 @@ def send_fs():
     subprocess.run(["sshpass", "-p", "alpine", "scp", "-P", "2222", "./apticket.der", "root@localhost:/mnt1/System/Library/Caches/"], check=True)
     subprocess.run(["sshpass", "-p", "alpine", "scp", "-P", "2222", "./sep-firmware.img4", "root@localhost:/mnt1/usr/standalone/firmware/"], check=True)
     subprocess.run(["sshpass", "-p", "alpine", "scp", "-P", "2222", "7.1.2/fstab", "root@localhost:/mnt1/etc/"], check=True)
-
-    time.sleep(1)
-
     # patching sum boot filez
 
     subprocess.run(["sshpass", "-p", "alpine", "ssh", "-p", "2222", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "root@localhost", "/usr/sbin/chown -R root:wheel /mnt2/keybags && /bin/chmod -R 755 /mnt2/keybags"], check=True)
@@ -214,7 +229,6 @@ def collect_stuff():
 
     iproxy = subprocess.Popen(["tools/iproxy", "2222", "22"], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 
-    os.system("output=$(tools/sshpass -p 'alpine' ssh -o StrictHostKeyChecking=no -l root -p 2222 127.0.0.1 'echo test'); if [ \"$output\" == \"\" ]; then sleep 5; exit; fi")
 
     os.system("tools/sshpass -p 'alpine' ssh -l root -p 2222 127.0.0.1 'echo test'")
 
@@ -226,28 +240,8 @@ def collect_stuff():
     os.system("sshpass -p 'alpine' scp -P 2222 root@localhost:/System/Library/Caches/apticket.der ./apticket.der")
     os.system("sshpass -p 'alpine' scp -P 2222 root@localhost:/usr/standalone/firmware/sep-firmware.img4 ./sep-firmware.img4")
     os.system("sshpass -p 'alpine' scp -r -P 2222 root@localhost:/usr/local/standalone/firmware/Baseband ./Baseband")
-    os.system("sshpass -p 'alpine' scp -r -P 2222 root@localhost:/var/keybags ./keybags")
+    os.system("sshpass -p 'alpine'  scp -r -P 2222 root@localhost:/var/keybags ./keybags")
     print("[*] Dump complete.")
-
-    iproxy.terminate()
-
-def hacktiv8():
-
-    print("[*] Waiting 60 seconds for ramdisk to boot and run server")
-    time.sleep(60)
-
-    #iproxy, testing stuff
-
-    print("[*] Starting iProxy in background....")
-
-    iproxy = subprocess.Popen(["tools/iproxy", "2222", "44"], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
-
-    os.system("output=$(tools/sshpass -p 'alpine' ssh -o StrictHostKeyChecking=no -l root -p 2222 127.0.0.1 'echo test'); if [ \"$output\" == \"\" ]; then sleep 5; exit; fi")
-
-    os.system("tools/sshpass -p 'alpine' ssh -l root -p 2222 127.0.0.1 'echo test'")
-
-
-    os.system("sshpass -p 'alpine' ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost '/sbin/mount_hfs /dev/disk0s1s1 /mnt1 && mv /mnt1/Applications/Setup.app /mnt1/Applications/fuckYou_Setup && reboot'")
 
     iproxy.terminate()
 
@@ -261,7 +255,7 @@ def make_im4m():
 
     if ".shsh2" in shsh2_file:
         print("[*] Converting .shsh2 file to IM4M... ")
-        os.system("tools/img4tool -e -s " + shsh2_file + " -m IM4M")
+        os.system(f"tools/img4tool -e -s {shsh2_file} -m IM4M")
 
 def boot():
     print("[*] Sending boot files...")
@@ -296,51 +290,7 @@ def boot():
     print("[*] Booted into iOS 7.1.2! ")
     exit()
 
-# main UI (finally)
-
-time.sleep(1)
-
-
-
-print("Starting sochiDG....")
-
-mac_ver = int(platform.mac_ver()[0].split('.')[0])
-
-os.system("clear")
-print("*** sochiDG ***")
-print("Script by Turlum25")
-print("Version 0.2.1-legacy")
-print()
-time.sleep(1)
-print("[*] Starting...")
-
-time.sleep(1)
-print("[*] macOS Version: " + str(mac_ver) + ".x")
-
-time.sleep(2)
-
-while True:
-
-    os.system("clear")
-    print("*** sochiDG ***")
-    print("Script by Turlum25")
-    print("Version 0.2.1-legacy")
-    print()
-    print("1 > Downgrade")
-    print("2 > Hactivate iPhone")
-    print("3 > Boot iOS 7.1.2")
-    print("4 > Exit")
-    print("------------------")
-    print()
-    main= input("Select a number: ")
-
-    if main == "4":
-        print("Exiting....")
-        time.sleep(2)
-        os.system("clear")
-        exit()
-
-    elif main == "1":
+def downgrade():
         print()
         warning = input("[*] WARNING: This will erase all data from your device. Would you like to continue? (Y/n) ")
         if warning.lower() == "n":
@@ -367,14 +317,64 @@ while True:
             print("[*] Done cleaning up, quitting.")
             exit()
 
+# main UI (inally)
+
+time.sleep(1)
+
+
+
+print("Starting sochiDG....")
+
+mac_ver = int(platform.mac_ver()[0].split('.')[0])
+
+os.system("clear")
+print("*** sochiDG ***")
+print("Script by Turlum25")
+print("Version 0.3-classic (9065cdd)")
+print()
+time.sleep(1)
+print("[*] Starting...")
+if args.debug:
+    print("[WARNING] You have enabled the --debug flag which is buggy at the moment.")
+
+
+time.sleep(1)
+print(f"[*] macOS Version: {mac_ver}.x")
+
+
+
+while True:
+
+    os.system("clear")
+    print("*** sochiDG ***")
+    print("Script by Turlum25")
+    print("Version 0.3-classic (XXXXXXX) beta")
+    print()
+    print("1 > Downgrade")
+    print("2 > Boot iOS 7.1.2")
+    print("3 > Exit")
+    print("------------------")
+    if args.debug:
+        print("Debug Tools: ")
+        print()
+        print("5 > SSH Ramdisk")
+    print()
+    main= input("Select a number: ")
+
+    if main == "3":
+        print("Exiting....")
+        time.sleep(2)
+        os.system("clear")
+        exit()
+
+    elif main == "1":
+        downgrade()
+
     elif main == "2":
-        print("[*] Sending device to recovery mode.")
+        os.system("tools/dfuhelper.sh")
+        boot()
+
+    elif args.debug and main == "5":
         recovery()
         os.system("tools/dfuhelper.sh")
         ramdisk()
-        input("[*] Press enter if you want to hacktivate your device. If not, please exit by pressing CTRL+C")
-        hacktiv8()
-
-    elif main == "3":
-        os.system("tools/dfuhelper.sh")
-        boot()
