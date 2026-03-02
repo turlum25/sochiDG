@@ -1,10 +1,10 @@
 # sochiDG
 
-sochiDG is a Python-based iPhone 5S (Global) downgrader. However, this will only support iOS 7.1.2.
+sochiDG is a Python and C based iPhone 5S (Global) downgrader. However, this will only support iOS 7.1.2.
 
 # Compatibility
 
-macOS Tahoe and earlier (Intel) only supported (for now). This can run in both Python 3.9 and 3.14, but I have not tested other versions.
+macOS 10.13+ is supported. The Python-based sochiDG clients can run in both Python 3.9 and 3.14, but I have not tested other versions.
 
 # Compiling source code and running (does not apply with releases)
 Since some do not fit into the maximum GitHub file requirement:
@@ -13,10 +13,11 @@ Since some do not fit into the maximum GitHub file requirement:
 * Download ramdisk.dmg from [here.](https://www.mediafire.com/file/i3cvx8mz7ehtlqk/ramdisk.dmg/file)
 * Place this file in the 7.1.2 folder
 * Download ios7.tar from [here.](https://www.mediafire.com/file/i3cvx8mz7ehtlqk/ramdisk.dmg/file)
+For the C binary, please run compiler.py by running the command "python3 compiler.py"
 
 # How to run and execute (and downgrade)
 * Step 1: CD into the downgrade by typing in "cd sochiDG" or "cd 5s_downgrade"
-* Step 2: Run this command: "python3 main.py". However, you need to install the necessary tools put in the tools folder as this tool is in very rough condition.
+* Step 2: Run this command: "python3 main.py" or just "./sochiDG -d". However, you need to install the necessary tools put in the tools folder as this tool is in very rough condition.
 * Step 3: Downgrade
 * Step 4: Boot
 * Step 5: Hacktivate
@@ -32,5 +33,5 @@ After booting into the setup screen, do the following:
 
 # Pretty necessary stuff
 
-* The full downgrade folder will be 2.92 GB as downloading everything in the program might cause faliure in the process.
+* The full downgrade folder will be around 2 GB after extraction as automating the downloads in the script might cause faliure in the process.
 * Since this downgrade tool is unstable and buggy, I would reccomend other developers to enhance my code. I also do not mind at all, if anyone puts my downgrade logic and code into their program.
