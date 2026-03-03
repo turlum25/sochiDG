@@ -279,6 +279,7 @@ int main(int argc, char *argv[]) {
         printf("----------------------------\n");
         fflush(stdout);
         collectStuff();
+        collectIM4M();
         system("tools/img4tool -c ramdisk/ramdisk.img4 -p ramdisk/ramdisk.im4p -m IM4M");
         helperDFU();
         printf("[*] Starting downgrade to iOS 7.1.2 (11D257)...\n");
