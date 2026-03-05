@@ -4,7 +4,7 @@ sochiDG is a Python and C based iPhone 5S (Global) downgrader. However, this wil
 
 # Compatibility
 
-macOS 10.13+ is supported. The Python-based sochiDG clients can run in both Python 3.9 and 3.14, but I have not tested other versions.
+macOS 10.13+ in Intel is supported, and I will add Linux and ARM64 Mac support later on. The Python-based sochiDG clients can run in both Python 3.9 and 3.14, but I have not tested other versions.
 
 # Compiling source code and running (does not apply with releases)
 Since some do not fit into the maximum GitHub file requirement:
