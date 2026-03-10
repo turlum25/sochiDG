@@ -19,9 +19,8 @@ For the C binary, please run compiler.py by running the command "python3 compile
 * Step 1: CD into the downgrade by typing in "cd sochiDG" or "cd 5s_downgrade"
 * Step 2: Run this command: "python3 main.py" or just "./sochiDG -d". However, you need to install the necessary tools put in the tools folder as this tool is in very rough condition.
 * Step 3: Downgrade
-* Step 4: Boot
-* Step 5: Hacktivate
-* Step 6: Profit
+* Step 4: Boot (./sochiDG -b)
+* Step 5: Profit
 
 # Activating iPhone after downgrade
 
