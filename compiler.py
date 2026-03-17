@@ -1,4 +1,4 @@
 import os
 
-os.system("clang main.c -o sochiDG -v")
+os.system("clang -o sochiDG main.c -Xlinker -no_fixup_chains -mmacosx-version-min=10.13 -v")
 os.system("clear")
