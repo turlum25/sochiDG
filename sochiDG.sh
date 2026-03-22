@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# FROM TURLUM25:
+# THIS IS STILL A BETA. UNTESTED (ONLY EXCEPT FOR -B) AND MAY NOT WORK PROPERLY
+# I DID NOT USE AI FOR THIS, AND VS CODE IS TRYING TO COMPLETE MY CODE
+# AND NO I HATE VIBE CODING
+
+
+
 # ---- Resolve script directory ----
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
