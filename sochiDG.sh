@@ -5,8 +5,6 @@
 # I DID NOT USE AI FOR THIS, AND VS CODE IS TRYING TO COMPLETE MY CODE
 # AND NO I HATE VIBE CODING
 
-
-
 # ---- Resolve script directory ----
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -145,6 +143,16 @@ sendFS() {
 
 }
 
+bootFiles() {
+    cd $SCRIPT_DIR && tools/img4 -i 7.1.2/iBSS.patched -o 7.1.2/iBSS.img4 -M IM4M -A -T ibss
+    cd $SCRIPT_DIR && tools/img4 -i 7.1.2/iBEC.patched -o 7.1.2/iBEC.img4 -M IM4M -A -T ibec
+
+    cd $SCRIPT_DIR && tools/img4 -i 7.1.2/kernelcache.im4p -o 7.1.2/kernelcache.img4 -M IM4M -T rkrn -P 7.1.2/kc.bpatch
+
+    cd $SCRIPT_DIR && tools/img4 -i 7.1.2/dtree.raw -o 7.1.2/devicetree.img4 -A -M IM4M -T rdtr  
+}
+
+
 makeIM4M() {
     read -p "[*] Drag your shsh2 file, this will be mandatory for signing components later on: " shsh2_file
     
@@ -177,6 +185,7 @@ collectStuff() {
 
 boot() {
     dfuhelper
+    bootFiles
     echo "[*] Entering PwnDFU mode"
     $SCRIPT_DIR/tools/ipwnder
 
@@ -191,6 +200,8 @@ boot() {
 
     echo "[*] Booted into iOS 7.1.2 (11D257)"
 }
+
+
 
 # make args existent
 downgrade_flag=0
@@ -217,7 +228,7 @@ done
 
 if [[ $# -eq 0 ]] || [[ $downgrade_flag -eq 0 && $ramdisk_flag -eq 0 && $boot_flag -eq 0 ]]; then
     echo "sochiDG - Script by Turlum25"
-    echo "Version 0.4-beta3"
+    echo "Version 0.4-beta4"
     echo "----------------------------"
     echo "Usage: $0 [-d] [-r] [-b]"
     echo "  -d      Downgrade iPhone to iOS 7.1.2 (11D257)"
@@ -229,8 +240,12 @@ fi
 
 if [[ $downgrade_flag -eq 1 ]]; then
     echo "sochiDG - Script by Turlum25"
-    echo "Version 0.4-beta3"
+    echo "Version 0.4-beta4"
     echo "----------------------------"
+    echo 
+    echo "[*] Compiling boot files..."
+    bootFiles
+    echo "[*] Done compiling boot files, continuing."
     makeIM4M
     collectStuff
     $SCRIPT_DIR/tools/img4tool -c ramdisk/ramdisk.img4 -p ramdisk/ramdisk.im4p -m IM4M
@@ -244,7 +259,7 @@ fi
 
 if [[ $ramdisk_flag -eq 1 ]]; then
     echo "sochiDG - Script by Turlum25"
-    echo "Version 0.4-beta3"
+    echo "Version 0.4-beta4"
     echo "----------------------------"
     echo "[*] Entering ramdisk mode..."
     ramdisk
@@ -254,7 +269,7 @@ fi
 
 if [[ $boot_flag -eq 1 ]]; then
     echo "sochiDG - Script by Turlum25"
-    echo "Version 0.4-beta3"
+    echo "Version 0.4-beta4"
     echo "----------------------------"
     boot
 fi
