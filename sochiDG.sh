@@ -201,6 +201,89 @@ boot() {
     echo "[*] Booted into iOS 7.1.2 (11D257)"
 }
 
+checkiOS7Tar() {
+    [ -f './7.1.2/ios7.tar' ]
+    check=$?
+    
+    if [ $check -eq 0 ]; then
+       echo "[Log] Found ios7.tar, continuing."
+        return 0
+    else
+        echo "[Log] Could not find ios7.tar."
+        return 1
+    fi
+}
+
+checkRamdiskDMG() {
+    [ -f './ramdisk/ramdisk.dmg' ]
+    check=$?
+        
+    if [ $check -eq 0 ]; then
+        echo "[Log] Found ramdisk.dmg, continuing."
+        return 0
+    else
+        echo "[Log] Could not find ramdisk.dmg."
+        return 1
+    fi
+}
+
+checkRamdiskIM4P() {
+    [ -f './ramdisk/ramdisk.im4p' ]
+    check=$?
+        
+    if [ $check -eq 0 ]; then
+        echo "[Log] Found ramdisk.im4p, continuing."
+        return 0
+    else
+        echo "[Log] Could not find ramdisk.im4p."
+        return 1
+    fi
+}
+
+checkIfNecessaryFilesExist() {
+    # checks if the necessary files for a downgrade are existent which are:
+    # ios7.tar in 7.1.2 folder, ramdisk.dmg and ramdisk.im4p in ramdisk folder.
+    # p.s this is not vibe coded, wen eta printf in c without stdio.h :P
+    
+
+    checkiOS7Tar
+    check1=$?
+    checkRamdiskDMG
+    check2=$?
+    checkRamdiskIM4P
+    check3=$?
+
+    if [ $check1 -eq 0 ]; then
+        echo "[*] Found ios7.tar, continuing."
+    fi
+    if [ $check1 -ne 0 ]; then
+        echo "[-] Could not find ios7.tar, downloading."
+        curl -L https://github.com/turlum25/sochidg-files/releases/download/FILES/ios7.tar.zip -o ./7.1.2/ios7.tar.zip
+        unzip -q ./7.1.2/ios7.tar.zip -d ./7.1.2/
+        rm ./7.1.2/ios7.tar.zip
+    fi
+
+    if [ $check2 -eq 0 ]; then
+        echo "[*] Found ramdisk.dmg, continuing."
+    fi
+    if [ $check2 -ne 0 ]; then
+        echo "[-] Could not find ramdisk.dmg, downloading."
+        curl -L https://github.com/turlum25/sochidg-files/releases/download/FILES/ramdisk.dmg -o ./ramdisk/ramdisk.dmg
+    fi
+
+    if [ $check3 -eq 0 ]; then
+        echo "[*] Found ramdisk.im4p, continuing."
+    fi
+    if [ $check3 -ne 0 ]; then
+        echo "[-] Could not find ramdisk.im4p, downloading."
+        curl -L https://github.com/turlum25/sochidg-files/releases/download/FILES/ramdisk.im4p -o ./ramdisk/ramdisk.im4p
+    fi
+
+    # added: v0.4~b5
+    # probably april fools today but eh who cares
+    # v20260401
+
+}
 
 
 # make args existent
@@ -228,7 +311,7 @@ done
 
 if [[ $# -eq 0 ]] || [[ $downgrade_flag -eq 0 && $ramdisk_flag -eq 0 && $boot_flag -eq 0 ]]; then
     echo "sochiDG - Script by Turlum25"
-    echo "Version 0.4-beta4"
+    echo "Version 0.4-beta5"
     echo "----------------------------"
     echo "Usage: $0 [-d] [-r] [-b]"
     echo "  -d      Downgrade iPhone to iOS 7.1.2 (11D257)"
@@ -240,13 +323,14 @@ fi
 
 if [[ $downgrade_flag -eq 1 ]]; then
     echo "sochiDG - Script by Turlum25"
-    echo "Version 0.4-beta4"
+    echo "Version 0.4-beta5"
     echo "----------------------------"
+    checkIfNecessaryFilesExist
+    makeIM4M
     echo 
     echo "[*] Compiling boot files..."
     bootFiles
     echo "[*] Done compiling boot files, continuing."
-    makeIM4M
     collectStuff
     $SCRIPT_DIR/tools/img4tool -c ramdisk/ramdisk.img4 -p ramdisk/ramdisk.im4p -m IM4M
     echo "[*] Starting downgrade to iOS 7.1.2 (11D257)..."
@@ -259,7 +343,7 @@ fi
 
 if [[ $ramdisk_flag -eq 1 ]]; then
     echo "sochiDG - Script by Turlum25"
-    echo "Version 0.4-beta4"
+    echo "Version 0.4-beta5"
     echo "----------------------------"
     echo "[*] Entering ramdisk mode..."
     ramdisk
@@ -269,7 +353,7 @@ fi
 
 if [[ $boot_flag -eq 1 ]]; then
     echo "sochiDG - Script by Turlum25"
-    echo "Version 0.4-beta4"
+    echo "Version 0.4-beta5"
     echo "----------------------------"
     boot
 fi
