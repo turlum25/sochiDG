@@ -5,8 +5,34 @@
 # I DID NOT USE AI FOR THIS, AND VS CODE IS TRYING TO COMPLETE MY CODE
 # AND NO I HATE VIBE CODING
 
+# *** TOOLS USED IN SOCHIDG ***
+# 1 - ipwnder
+# 2 - irecovery
+# 3 - iproxy
+# 4 - sshpass
+# 5 - img4tool
+
 # ---- Resolve script directory ----
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# ---- OS Detection for tools ----
+OS_TYPE="$(uname)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if [ "$OS_TYPE" == "Darwin" ]; then
+    TOOL_DIR="$TOOL_DIR/macos"
+    echo "[*] macOS detected. Using macos binaries."
+elif [ "$OS_TYPE" == "Linux" ]; then
+    TOOL_DIR="$TOOL_DIR/linux"
+    echo "[*] Linux detected. Using linux binaries."
+else
+    echo "[!] Unsupported OS: $OS_TYPE"
+    exit 1
+fi
+
+# added: v0.4~b6
+# 3 month anniversary of sochiDG 0.1 release!
+# v20260402
 
 step() {
     for i in $(seq "$1" -1 1); do
@@ -27,7 +53,7 @@ dfuhelper() {
 }
 
 
-#$SCRIPT_DIR/tools/iproxy 2222 44 > iproxy.log 2>&1 &
+#$TOOL_DIR/iproxy 2222 44 > iproxy.log 2>&1 &
 
 #IPROXY_PID=$!
 
@@ -37,27 +63,27 @@ ramdisk() {
 
     dfuhelper
 
-    $SCRIPT_DIR/tools/ipwnder
+    $TOOL_DIR/ipwnder
 
-    $SCRIPT_DIR/tools/irecovery -f $SCRIPT_DIR/ramdisk/iBSS.img4
-    $SCRIPT_DIR/tools/irecovery -f $SCRIPT_DIR/ramdisk/iBSS.img4
+    $TOOL_DIR/irecovery -f $SCRIPT_DIR/ramdisk/iBSS.img4
+    $TOOL_DIR/irecovery -f $SCRIPT_DIR/ramdisk/iBSS.img4
 
-    $SCRIPT_DIR/tools/irecovery -f $SCRIPT_DIR/ramdisk/iBEC.img4
+    $TOOL_DIR/irecovery -f $SCRIPT_DIR/ramdisk/iBEC.img4
 
-    $SCRIPT_DIR/tools/irecovery -f $SCRIPT_DIR/ramdisk/ramdisk.img4
-    $SCRIPT_DIR/tools/irecovery -c ramdisk
+    $TOOL_DIR/irecovery -f $SCRIPT_DIR/ramdisk/ramdisk.img4
+    $TOOL_DIR/irecovery -c ramdisk
 
-    $SCRIPT_DIR/tools/irecovery -f $SCRIPT_DIR/ramdisk/devicetree.img4
-    $SCRIPT_DIR/tools/irecovery -c devicetree
+    $TOOL_DIR/irecovery -f $SCRIPT_DIR/ramdisk/devicetree.img4
+    $TOOL_DIR/irecovery -c devicetree
 
-    $SCRIPT_DIR/tools/irecovery -f $SCRIPT_DIR/ramdisk/kernelcache.img4
+    $TOOL_DIR/irecovery -f $SCRIPT_DIR/ramdisk/kernelcache.img4
 
-    $SCRIPT_DIR/tools/irecovery -c bootx
+    $TOOL_DIR/irecovery -c bootx
 
 }
 
 testSSH() {
-    $SCRIPT_DIR/tools/sshpass -p 'alpine' ssh -o StrictHostKeyChecking=no -l root -p 2222 127.0.0.1 'echo [*] SSH Connection successful'
+    $TOOL_DIR/sshpass -p 'alpine' ssh -o StrictHostKeyChecking=no -l root -p 2222 127.0.0.1 'echo [*] SSH Connection successful'
 }
 
 prepareNAND() {
@@ -66,15 +92,15 @@ prepareNAND() {
 
     step 60 "[*] Waiting for device to boot and run server"    
 
-    $SCRIPT_DIR/tools/iproxy 2222 44 > iproxy.log 2>&1 &
+    $TOOL_DIR/iproxy 2222 44 > iproxy.log 2>&1 &
 
     IPROXY_PID=$!
 
     timeout 5s testSSH
     timeout 5s testSSH
 
-    $SCRIPT_DIR/tools/sshpass -p 'alpine' ssh -p 2222 -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null root@localhost lwvm init
-    $SCRIPT_DIR/tools/sshpass -p 'alpine' ssh -p 2222 -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null root@localhost sbin/reboot
+    $TOOL_DIR/sshpass -p 'alpine' ssh -p 2222 -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null root@localhost lwvm init
+    $TOOL_DIR/sshpass -p 'alpine' ssh -p 2222 -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null root@localhost sbin/reboot
 
     echo "[*] NAND preparation complete."
 
@@ -90,15 +116,15 @@ sendFS() {
 
     step 60 "[*] Waiting for device to boot and run server"    
 
-    $SCRIPT_DIR/tools/iproxy 2222 44 > iproxy.log 2>&1 &
+    $TOOL_DIR/iproxy 2222 44 > iproxy.log 2>&1 &
 
     IPROXY_PID=$!
 
     PARTITION="printf 'n\\n1\\n\\n786438\\n\\nn\\n2\\n\\n\\n\\nw\\ny\\n' | gptfdisk /dev/rdisk0s1"
 
-    sshpass -p alpine ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost $PARTITION
+    $TOOL_DIR/sshpass -p alpine ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost $PARTITION
 
-    sync="$SCRIPT_DIR/tools/sshpass -p 'alpine' ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost sync"
+    sync="$TOOL_DIR/sshpass -p 'alpine' ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost sync"
 
     $sync
     $sync
@@ -113,29 +139,29 @@ sendFS() {
 
     sleep 3
 
-    $SCRIPT_DIR/tools/sshpass -p 'alpine' ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost /sbin/newfs_hfs -s -v System -J -b 4096 -n a=4096,c=4096,e=4096 /dev/disk0s1s1
-    $SCRIPT_DIR/tools/sshpass -p 'alpine' ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost /sbin/newfs_hfs -s -v Data -J -b 4096 -n a=4096,c=4096,e=4096 /dev/disk0s1s2
+    $TOOL_DIR/sshpass -p 'alpine' ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost /sbin/newfs_hfs -s -v System -J -b 4096 -n a=4096,c=4096,e=4096 /dev/disk0s1s1
+    $TOOL_DIR/sshpass -p 'alpine' ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost /sbin/newfs_hfs -s -v Data -J -b 4096 -n a=4096,c=4096,e=4096 /dev/disk0s1s2
 
     
-    $SCRIPT_DIR/tools/sshpass -p 'alpine' ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost /sbin/mount_hfs /dev/disk0s1s1 /mnt1
-    $SCRIPT_DIR/tools/sshpass -p 'alpine' ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost /sbin/mount_hfs /dev/disk0s1s2 /mnt2
+    $TOOL_DIR/sshpass -p 'alpine' ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost /sbin/mount_hfs /dev/disk0s1s1 /mnt1
+    $TOOL_DIR/sshpass -p 'alpine' ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost /sbin/mount_hfs /dev/disk0s1s2 /mnt2
 
-    $SCRIPT_DIR/tools/sshpass -p 'alpine' scp -P 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null 7.1.2/ios7.tar root@localhost:/mnt2
-    $SCRIPT_DIR/tools/sshpass -p 'alpine' ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost tar -xvf /mnt2/ios7.tar -C /mnt1
+    $TOOL_DIR/sshpass -p 'alpine' scp -P 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null 7.1.2/ios7.tar root@localhost:/mnt2
+    $TOOL_DIR/sshpass -p 'alpine' ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost tar -xvf /mnt2/ios7.tar -C /mnt1
 
-    $SCRIPT_DIR/tools/sshpass -p 'alpine' ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost mv -v /mnt1/private/var/* /mnt2
+    $TOOL_DIR/sshpass -p 'alpine' ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost mv -v /mnt1/private/var/* /mnt2
 
-    $SCRIPT_DIR/tools/sshpass -p 'alpine' ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost mkdir -p /mnt2/keybags 
-    $SCRIPT_DIR/tools/sshpass -p 'alpine' ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost mkdir -p /mnt2/keybags /mnt1/usr/local/standalone/firmware/Baseband
+    $TOOL_DIR/sshpass -p 'alpine' ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost mkdir -p /mnt2/keybags 
+    $TOOL_DIR/sshpass -p 'alpine' ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost mkdir -p /mnt2/keybags /mnt1/usr/local/standalone/firmware/Baseband
 
-    $SCRIPT_DIR/tools/sshpass -p 'alpine' scp -r -P 2222 $SCRIPT_DIR/keybags root@localhost:/mnt2/
-    $SCRIPT_DIR/tools/sshpass -p 'alpine' scp -r -P 2222 $SCRIPT_DIR/Baseband root@localhost:/mnt1/usr/local/standalone/firmware/
-    $SCRIPT_DIR/tools/sshpass -p 'alpine' scp -P 2222 $SCRIPT_DIR/apticket.der root@localhost:/mnt1/System/Library/Caches/
-    $SCRIPT_DIR/tools/sshpass -p 'alpine' scp -P 2222 $SCRIPT_DIR/sep-firmware.img4 root@localhost:/mnt1/usr/standalone/firmware/
-    $SCRIPT_DIR/tools/sshpass -p 'alpine' scp -P 2222 $SCRIPT_DIR/fstab root@localhost:/mnt1/etc/
-    $SCRIPT_DIR/tools/sshpass -p 'alpine' ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost /usr/sbin/chown -R root:wheel /mnt2/keybags && /bin/chmod -R 755 /mnt2/keybags
+    $TOOL_DIR/sshpass -p 'alpine' scp -r -P 2222 $SCRIPT_DIR/keybags root@localhost:/mnt2/
+    $TOOL_DIR/sshpass -p 'alpine' scp -r -P 2222 $SCRIPT_DIR/Baseband root@localhost:/mnt1/usr/local/standalone/firmware/
+    $TOOL_DIR/sshpass -p 'alpine' scp -P 2222 $SCRIPT_DIR/apticket.der root@localhost:/mnt1/System/Library/Caches/
+    $TOOL_DIR/sshpass -p 'alpine' scp -P 2222 $SCRIPT_DIR/sep-firmware.img4 root@localhost:/mnt1/usr/standalone/firmware/
+    $TOOL_DIR/sshpass -p 'alpine' scp -P 2222 $SCRIPT_DIR/fstab root@localhost:/mnt1/etc/
+    $TOOL_DIR/sshpass -p 'alpine' ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost /usr/sbin/chown -R root:wheel /mnt2/keybags && /bin/chmod -R 755 /mnt2/keybags
 
-    $SCRIPT_DIR/tools/sshpass -p 'alpine' ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost /sbin/reboot
+    $TOOL_DIR/sshpass -p 'alpine' ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost /sbin/reboot
 
     echo "[*] Flashed filesystem and rebooted device"
 
@@ -144,12 +170,12 @@ sendFS() {
 }
 
 bootFiles() {
-    cd $SCRIPT_DIR && tools/img4 -i 7.1.2/iBSS.patched -o 7.1.2/iBSS.img4 -M IM4M -A -T ibss
-    cd $SCRIPT_DIR && tools/img4 -i 7.1.2/iBEC.patched -o 7.1.2/iBEC.img4 -M IM4M -A -T ibec
+    cd $SCRIPT_DIR && $TOOL_DIR/img4 -i 7.1.2/iBSS.patched -o 7.1.2/iBSS.img4 -M IM4M -A -T ibss
+    cd $SCRIPT_DIR && $TOOL_DIR/img4 -i 7.1.2/iBEC.patched -o 7.1.2/iBEC.img4 -M IM4M -A -T ibec
 
-    cd $SCRIPT_DIR && tools/img4 -i 7.1.2/kernelcache.im4p -o 7.1.2/kernelcache.img4 -M IM4M -T rkrn -P 7.1.2/kc.bpatch
+    cd $SCRIPT_DIR && $TOOL_DIR/img4 -i 7.1.2/kernelcache.im4p -o 7.1.2/kernelcache.img4 -M IM4M -T rkrn -P 7.1.2/kc.bpatch
 
-    cd $SCRIPT_DIR && tools/img4 -i 7.1.2/dtree.raw -o 7.1.2/devicetree.img4 -A -M IM4M -T rdtr  
+    cd $SCRIPT_DIR && $TOOL_DIR/img4 -i 7.1.2/dtree.raw -o 7.1.2/devicetree.img4 -A -M IM4M -T rdtr  
 }
 
 
@@ -162,21 +188,21 @@ makeIM4M() {
     fi
     
     echo "[*] Converting .shsh2 file to IM4M... "
-    $SCRIPT_DIR/tools/img4tool -e -s "$shsh2_file" -m IM4M
+    $TOOL_DIR/img4tool -e -s "$shsh2_file" -m IM4M
 }
 
 collectStuff() {
     echo "[*] Collecting files from device..."
-    $SCRIPT_DIR/tools/iproxy 2222 22 > iproxy.log 2>&1 &
+    $TOOL_DIR/iproxy 2222 22 > iproxy.log 2>&1 &
     IPROXY_PID=$!
 
     timeout 5s testSSH
     timeout 5s testSSH
     
-    $SCRIPT_DIR/tools/sshpass -p 'alpine' scp -P 2222 root@localhost:/System/Library/Caches/apticket.der ./apticket.der
-    $SCRIPT_DIR/tools/sshpass -p 'alpine' scp -P 2222 root@localhost:/usr/standalone/firmware/sep-firmware.img4 ./sep-firmware.img4
-    $SCRIPT_DIR/tools/sshpass -p 'alpine' scp -r -P 2222 root@localhost:/usr/local/standalone/firmware/Baseband ./Baseband
-    $SCRIPT_DIR/tools/sshpass -p 'alpine'  scp -r -P 2222 root@localhost:/var/keybags ./keybags
+    $TOOL_DIR/sshpass -p 'alpine' scp -P 2222 root@localhost:/System/Library/Caches/apticket.der ./apticket.der
+    $TOOL_DIR/sshpass -p 'alpine' scp -P 2222 root@localhost:/usr/standalone/firmware/sep-firmware.img4 ./sep-firmware.img4
+    $TOOL_DIR/sshpass -p 'alpine' scp -r -P 2222 root@localhost:/usr/local/standalone/firmware/Baseband ./Baseband
+    $TOOL_DIR/sshpass -p 'alpine'  scp -r -P 2222 root@localhost:/var/keybags ./keybags
 
     echo "[*] Collection complete."
 
@@ -187,16 +213,16 @@ boot() {
     dfuhelper
     bootFiles
     echo "[*] Entering PwnDFU mode"
-    $SCRIPT_DIR/tools/ipwnder
+    $TOOL_DIR/ipwnder
 
     echo "[*] Sending boot files..."
-    $SCRIPT_DIR/tools/irecovery -f $SCRIPT_DIR/7.1.2/iBSS.img4
-    $SCRIPT_DIR/tools/irecovery -f $SCRIPT_DIR/7.1.2/iBSS.img4
-    $SCRIPT_DIR/tools/irecovery -f $SCRIPT_DIR/7.1.2/iBEC.img4
-    $SCRIPT_DIR/tools/irecovery -f $SCRIPT_DIR/7.1.2/devicetree.img4
-    $SCRIPT_DIR/tools/irecovery -c devicetree
-    $SCRIPT_DIR/tools/irecovery -f $SCRIPT_DIR/7.1.2/kernelcache.img4
-    $SCRIPT_DIR/tools/irecovery -c bootx
+    $TOOL_DIR/irecovery -f $SCRIPT_DIR/7.1.2/iBSS.img4
+    $TOOL_DIR/irecovery -f $SCRIPT_DIR/7.1.2/iBSS.img4
+    $TOOL_DIR/irecovery -f $SCRIPT_DIR/7.1.2/iBEC.img4
+    $TOOL_DIR/irecovery -f $SCRIPT_DIR/7.1.2/devicetree.img4
+    $TOOL_DIR/irecovery -c devicetree
+    $TOOL_DIR/irecovery -f $SCRIPT_DIR/7.1.2/kernelcache.img4
+    $TOOL_DIR/irecovery -c bootx
 
     echo "[*] Booted into iOS 7.1.2 (11D257)"
 }
@@ -311,7 +337,7 @@ done
 
 if [[ $# -eq 0 ]] || [[ $downgrade_flag -eq 0 && $ramdisk_flag -eq 0 && $boot_flag -eq 0 ]]; then
     echo "sochiDG - Script by Turlum25"
-    echo "Version 0.4-beta5"
+    echo "Version 0.4-beta6"
     echo "----------------------------"
     echo "Usage: $0 [-d] [-r] [-b]"
     echo "  -d      Downgrade iPhone to iOS 7.1.2 (11D257)"
@@ -323,7 +349,7 @@ fi
 
 if [[ $downgrade_flag -eq 1 ]]; then
     echo "sochiDG - Script by Turlum25"
-    echo "Version 0.4-beta5"
+    echo "Version 0.4-beta6"
     echo "----------------------------"
     checkIfNecessaryFilesExist
     makeIM4M
@@ -332,7 +358,7 @@ if [[ $downgrade_flag -eq 1 ]]; then
     bootFiles
     echo "[*] Done compiling boot files, continuing."
     collectStuff
-    $SCRIPT_DIR/tools/img4tool -c ramdisk/ramdisk.img4 -p ramdisk/ramdisk.im4p -m IM4M
+    $TOOL_DIR/img4tool -c ramdisk/ramdisk.img4 -p ramdisk/ramdisk.im4p -m IM4M
     echo "[*] Starting downgrade to iOS 7.1.2 (11D257)..."
     prepareNAND
     sendFS    
@@ -343,7 +369,7 @@ fi
 
 if [[ $ramdisk_flag -eq 1 ]]; then
     echo "sochiDG - Script by Turlum25"
-    echo "Version 0.4-beta5"
+    echo "Version 0.4-beta6"
     echo "----------------------------"
     echo "[*] Entering ramdisk mode..."
     ramdisk
@@ -353,7 +379,7 @@ fi
 
 if [[ $boot_flag -eq 1 ]]; then
     echo "sochiDG - Script by Turlum25"
-    echo "Version 0.4-beta5"
+    echo "Version 0.4-beta6"
     echo "----------------------------"
     boot
 fi
