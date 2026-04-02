@@ -1,6 +1,6 @@
 # sochiDG
 
-sochiDG is a Python, Shell and C based iPhone 5S (Global) downgrader. However, this will only support iOS 7.1.2.
+sochiDG is a Shell and C based iPhone 5S (Global) downgrader. However, this will only support iOS 7.1.2.
 
 # Why sochiDG is better
 
@@ -29,12 +29,13 @@ The SEP (Secure Enclave Processor) is a physical chip in the iPhone/iPad/iPod to
 macOS 10.13+ in Intel is supported, and I will add Linux and ARM64 Mac support later on. The Python-based sochiDG clients can run in both Python 3.9 and 3.14, but I have not tested other versions.
 
 # Compiling source code and running (does not apply with releases)
-Since some do not fit into the maximum GitHub file requirement:
+Since some do not fit into the maximum GitHub file requirement you can either run it as is and let the program download it or:
 * Place these files in the ramdisk folder:
 * Download ramdisk.im4p from [here.](https://www.mediafire.com/file/aya3nbyzqp7xrm3/ramdisk.im4p/file#)
 * Download ramdisk.dmg from [here.](https://www.mediafire.com/file/i3cvx8mz7ehtlqk/ramdisk.dmg/file)
 * Place this file in the 7.1.2 folder
 * Download ios7.tar from [here.](https://www.mediafire.com/file/i3cvx8mz7ehtlqk/ramdisk.dmg/file)
+
 For the C binary, please run compiler.py by running the command "python3 compiler.py"
 
 # How to run and execute (and downgrade)
