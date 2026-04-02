@@ -53,7 +53,5 @@ After booting into the setup screen, do the following:
 * Go to Finder/iTunes and let it activate the iPhone
 * Profit
 
-# Pretty necessary stuff
 
-* The full downgrade folder will be around 2 GB after extraction as automating the downloads in the script might cause faliure in the process.
 
