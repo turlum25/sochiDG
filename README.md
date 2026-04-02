@@ -26,7 +26,7 @@ The SEP (Secure Enclave Processor) is a physical chip in the iPhone/iPad/iPod to
 
 # Compatibility
 
-macOS 10.13+ in Intel is supported, and I will add Linux and ARM64 Mac support later on. The Python-based sochiDG clients can run in both Python 3.9 and 3.14, but I have not tested other versions.
+Linux, and macOS 10.13+ (both in Intel) are supported. You can run sochiDG with Rosetta 2 on ARM64 Macs, but it would be very unstable and I would not reccomend using it.
 
 # Compiling source code and running (does not apply with releases)
 Since some do not fit into the maximum GitHub file requirement you can either run it as is and let the program download it or:
