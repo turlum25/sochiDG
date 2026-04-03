@@ -39,8 +39,8 @@ Since some do not fit into the maximum GitHub file requirement you can either ru
 For the C binary, please run compiler.py by running the command "python3 compiler.py"
 
 # How to run and execute (and downgrade)
-* Step 1: CD into the downgrade by typing in "cd sochiDG" or "cd 5s_downgrade"
-* Step 2: Run this command: "python3 main.py" or just "./sochiDG/.sh -d". However, you need to install the necessary tools put in the tools folder as this tool is in very rough condition.
+* Step 1: CD into the downgrade by typing in "cd sochiDG"
+* Step 2: Run this command: "./sochiDG/.sh -d". However, you need to install the necessary tools put in the tools folder as this tool (optional, but please do for better stability.)
 * Step 3: Downgrade
 * Step 4: Boot (./sochiDG/.sh -b)
 * Step 5: Profit
