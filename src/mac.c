@@ -363,7 +363,7 @@ int main(int argc, char *argv[]) {
 
     if (argc == 1 || (downgrade_flag == 0 && ramdisk_flag == 0 && boot_flag == 0)) {
         printf("sochiDG - Script by Turlum25\n");
-        printf("Version 0.4-beta5\n");
+        printf("Version 0.4-beta6\n");
         printf("----------------------------\n");
         printf("Usage: %s [-d] [-r] [-b]\n", argv[0]);
         printf("  -d      Downgrade iPhone to iOS 7.1.2 (11D257)\n");
@@ -375,7 +375,7 @@ int main(int argc, char *argv[]) {
     if (downgrade_flag) {
         printf("sochiDG - Script by Turlum25\n");
         fflush(stdout);
-        printf("Version 0.4-beta5\n");
+        printf("Version 0.4-beta6\n");
         fflush(stdout);
         printf("----------------------------\n");
         fflush(stdout);
@@ -401,7 +401,7 @@ int main(int argc, char *argv[]) {
     if (ramdisk_flag) {
         printf("sochiDG - Script by Turlum25\n");
         fflush(stdout);
-        printf("Version 0.4-beta5\n");
+        printf("Version 0.4-beta6\n");
         fflush(stdout);
         printf("----------------------------\n");
         fflush(stdout);
@@ -417,12 +417,11 @@ int main(int argc, char *argv[]) {
 
         printf("sochiDG - Script by Turlum25\n");
         fflush(stdout);
-        printf("Version 0.4-beta5\n");
+        printf("Version 0.4-beta6\n");
         fflush(stdout);
         printf("----------------------------\n");
         fflush(stdout);
 
-        helperDFU();
         bootFiles();
         boot();
 
