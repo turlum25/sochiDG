@@ -20,11 +20,9 @@ OS_TYPE="$(uname)"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 if [ "$OS_TYPE" == "Darwin" ]; then
-    TOOL_DIR="$TOOL_DIR"
-    echo "[*] macOS detected. Using macOS binaries."
+    TOOL_DIR="$SCRIPT_DIR/tools"
 elif [ "$OS_TYPE" == "Linux" ]; then
-    TOOL_DIR="$TOOL_DIR/linux"
-    echo "[*] Linux detected. Using Linux binaries."
+    TOOL_DIR="$SCRIPT_DIR/tools/linux"
 else
     echo "[!] Unsupported OS: $OS_TYPE"
     exit 1
@@ -43,8 +41,7 @@ step() {
 }
 
 dfuhelper() {
-    echo "[*] Press any key when ready for DFU mode"
-    step 3 "Get ready"
+    step 3 "[*] Get ready to enter DFU mode"
     step_one="Hold home + power button"
     step 8 "$step_one" &
     sleep 9
