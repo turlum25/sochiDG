@@ -20,11 +20,11 @@ OS_TYPE="$(uname)"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 if [ "$OS_TYPE" == "Darwin" ]; then
-    TOOL_DIR="$TOOL_DIR/macos"
-    echo "[*] macOS detected. Using macos binaries."
+    TOOL_DIR="$TOOL_DIR"
+    echo "[*] macOS detected. Using macOS binaries."
 elif [ "$OS_TYPE" == "Linux" ]; then
     TOOL_DIR="$TOOL_DIR/linux"
-    echo "[*] Linux detected. Using linux binaries."
+    echo "[*] Linux detected. Using Linux binaries."
 else
     echo "[!] Unsupported OS: $OS_TYPE"
     exit 1
