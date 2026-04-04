@@ -51,13 +51,13 @@ void bootFiles() {
 void prepareNAND()
 {
 
-    system("./tools/linux/linux/iproxy 2222 44 >/dev/null 2>&1 &");
+    system("./tools//linux/iproxy 2222 44 >/dev/null 2>&1 &");
 
     printf("[*] Preparing for restore...\n");
 
-    system("./tools/linux/linux/sshpass -p 'alpine' ssh -p 2222 -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost 'lwvm init'");
+    system("./tools/linux/sshpass -p 'alpine' ssh -p 2222 -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost 'lwvm init'");
 
-    system("./tools/linux/linux/sshpass -p 'alpine' ssh -p 2222 -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost '/sbin/reboot'");
+    system("./tools/linux/sshpass -p 'alpine' ssh -p 2222 -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost '/sbin/reboot'");
 
     printf("[*] Done preparing for restore! ");
 
@@ -69,10 +69,8 @@ void sendFS()
     
     printf("[*] Waiting 60 seconds for ramdisk to boot and run server");
     sleep(60);
-    
-    system("./tools/iproxy 2222 44 >/dev/null 2>&1 &");
 
-    system("./tools/linux/linux/iproxy 2222 44 >/dev/null 2>&1 &");
+    system("./tools/linux/iproxy 2222 44 >/dev/null 2>&1 &");
 
     // gptfdisk thing
 
@@ -81,71 +79,71 @@ void sendFS()
     char final_ssh_cmd[1024];
 
     snprintf(final_ssh_cmd, sizeof(final_ssh_cmd), 
-    "./tools/linux/linux/sshpass -p 'alpine' ssh -p 2222 -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost \"%s\"", 
+    "./tools/linux/sshpass -p 'alpine' ssh -p 2222 -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost \"%s\"", 
     partition_cmd);
 
     system(final_ssh_cmd);
 
     // a bunch of 'sync' commands
 
-    system("./tools/linux/linux/sshpass -p 'alpine' ssh -p 2222 -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost 'sync'");
+    system("./tools/linux/sshpass -p 'alpine' ssh -p 2222 -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost 'sync'");
     
-    system("./tools/linux/linux/sshpass -p 'alpine' ssh -p 2222 -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost 'sync'");
+    system("./tools/linux/sshpass -p 'alpine' ssh -p 2222 -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost 'sync'");
 
-    system("./tools/linux/linux/sshpass -p 'alpine' ssh -p 2222 -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost 'sync'");
+    system("./tools/linux/sshpass -p 'alpine' ssh -p 2222 -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost 'sync'");
 
-    system("./tools/linux/linux/sshpass -p 'alpine' ssh -p 2222 -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost 'sync'");
+    system("./tools/linux/sshpass -p 'alpine' ssh -p 2222 -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost 'sync'");
 
-    system("./tools/linux/linux/sshpass -p 'alpine' ssh -p 2222 -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost 'sync'");
+    system("./tools/linux/sshpass -p 'alpine' ssh -p 2222 -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost 'sync'");
 
-    system("./tools/linux/linux/sshpass -p 'alpine' ssh -p 2222 -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost 'sync'");
+    system("./tools/linux/sshpass -p 'alpine' ssh -p 2222 -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost 'sync'");
 
     // format partitions
 
     // /sbin/newfs_hfs -s -v System -J -b 4096 -n a=4096,c=4096,e=4096 /dev/disk0s1s1
     // /sbin/newfs_hfs -s -v Data -J -b 4096 -n a=4096,c=4096,e=4096 /dev/disk0s1s2
 
-    system("./tools/linux/linux/sshpass -p 'alpine' ssh -p 2222 -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost '/sbin/newfs_hfs -s -v System -J -b 4096 -n a=4096,c=4096,e=4096 /dev/disk0s1s1'");
+    system("./tools/linux/sshpass -p 'alpine' ssh -p 2222 -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost '/sbin/newfs_hfs -s -v System -J -b 4096 -n a=4096,c=4096,e=4096 /dev/disk0s1s1'");
 
-    system("./tools/linux/linux/sshpass -p 'alpine' ssh -p 2222 -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost '/sbin/newfs_hfs -s -v Data -J -b 4096 -n a=4096,c=4096,e=4096 /dev/disk0s1s2'");
+    system("./tools/linux/sshpass -p 'alpine' ssh -p 2222 -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost '/sbin/newfs_hfs -s -v Data -J -b 4096 -n a=4096,c=4096,e=4096 /dev/disk0s1s2'");
 
     // now *mount* partitions
 
     // /sbin/mount_hfs /dev/disk0s1s1 /mnt1
     // /sbin/mount_hfs /dev/disk0s1s2 /mnt2
 
-    system("./tools/linux/linux/sshpass -p 'alpine' ssh -p 2222 -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost '/sbin/mount_hfs /dev/disk0s1s1 /mnt1'");
+    system("./tools/linux/sshpass -p 'alpine' ssh -p 2222 -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost '/sbin/mount_hfs /dev/disk0s1s1 /mnt1'");
 
-    system("./tools/linux/linux/sshpass -p 'alpine' ssh -p 2222 -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost '/sbin/mount_hfs /dev/disk0s1s2 /mnt2'");
+    system("./tools/linux/sshpass -p 'alpine' ssh -p 2222 -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost '/sbin/mount_hfs /dev/disk0s1s2 /mnt2'");
 
     printf("[*] Script will now send filesystem, waiting 3 seconds.\n");
     sleep(3);
 
-    system("./tools/linux/linux/sshpass -p 'alpine' scp -P 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ./ios7.tar root@localhost:/mnt2");
+    system("./tools/linux/sshpass -p 'alpine' scp -P 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ./ios7.tar root@localhost:/mnt2");
 
     // extract, move
 
-    system("./tools/linux/linux/sshpass -p 'alpine' ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost 'tar -xvf /mnt2/ios7.tar -C /mnt1'");
-    system("./tools/linux/linux/sshpass -p 'alpine' ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost 'mv -v /mnt1/private/var/* /mnt2'");
+    system("./tools/linux/sshpass -p 'alpine' ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost 'tar -xvf /mnt2/ios7.tar -C /mnt1'");
+    system("./tools/linux/sshpass -p 'alpine' ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost 'mv -v /mnt1/private/var/* /mnt2'");
 
-    system("./tools/linux/linux/sshpass -p 'alpine' ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost 'mkdir -p /mnt2/keybags /mnt1/usr/local/standalone/firmware/Baseband'");
+    system("./tools/linux/sshpass -p 'alpine' ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost 'mkdir -p /mnt2/keybags /mnt1/usr/local/standalone/firmware/Baseband'");
 
     // send stuff
 
-    system("./tools/linux/linux/sshpass -p 'alpine' scp -r -P 2222 ./keybags root@localhost:/mnt2/");
-    system("./tools/linux/linux/sshpass -p 'alpine' scp -r -P 2222 ./Baseband root@localhost:/mnt1/usr/local/standalone/firmware/");
-    system("./tools/linux/linux/sshpass -p 'alpine' scp -P 2222 ./apticket.der root@localhost:/mnt1/System/Library/Caches/");
-    system("./tools/linux/linux/sshpass -p 'alpine' scp -P 2222 ./sep-firmware.img4 root@localhost:/mnt1/usr/standalone/firmware/");
-    system("./tools/linux/linux/sshpass -p 'alpine' scp -P 2222 ./fstab root@localhost:/mnt1/etc/");
+    system("./tools/linux/sshpass -p 'alpine' scp -r -P 2222 ./keybags root@localhost:/mnt2/");
+    system("./tools/linux/sshpass -p 'alpine' scp -r -P 2222 ./Baseband root@localhost:/mnt1/usr/local/standalone/firmware/");
+    system("./tools/linux/sshpass -p 'alpine' scp -P 2222 ./apticket.der root@localhost:/mnt1/System/Library/Caches/");
+    system("./tools/linux/sshpass -p 'alpine' scp -P 2222 ./sep-firmware.img4 root@localhost:/mnt1/usr/standalone/firmware/");
+    system("./tools/linux/sshpass -p 'alpine' scp -P 2222 ./fstab root@localhost:/mnt1/etc/");
 
     // boot file patching?
 
-    system("./tools/linux/linux/sshpass -p 'alpine' ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost '/usr/sbin/chown -R root:wheel /mnt2/keybags && /bin/chmod -R 755 /mnt2/keybags'");
+    system("./tools/linux/sshpass -p 'alpine' ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost '/usr/sbin/chown -R root:wheel /mnt2/keybags && /bin/chmod -R 755 /mnt2/keybags'");
 
     // the end of all suffering, praise reboot
 
     printf("[*] Sending reboot command to iPhone...\n");
-    system("./tools/linux/linux/sshpass -p 'alpine' ssh -p 2222 -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost '/sbin/reboot'");
+    system("./tools/linux/sshpass -p 'alpine' ssh -p 2222 -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost '/sbin/reboot'");
 
     printf("[*] Done sending filesystem! If it failed, please restart downgrade process.");
 
@@ -160,29 +158,29 @@ void bootRamdisk()
     sleep(1);
 
     printf("[*] Entering PwnDFU mode\n");
-    system("./tools/linux/linux/ipwnder");
+    system("./tools/linux/ipwnder");
 
     printf("[*] Entering Ramdisk...\n");
     
-    system("./tools/linux/linux/irecovery -f ./ramdisk/iBSS.img4");
-    system("./tools/linux/linux/irecovery -f ./ramdisk/iBSS.img4");
+    system("./tools/linux/irecovery -f ./ramdisk/iBSS.img4");
+    system("./tools/linux/irecovery -f ./ramdisk/iBSS.img4");
     sleep(1);
 
-    system("./tools/linux/linux/irecovery -f ./ramdisk/iBEC.img4");
+    system("./tools/linux/irecovery -f ./ramdisk/iBEC.img4");
     sleep(1);
 
-    system("./tools/linux/linux/irecovery -f ./ramdisk/ramdisk.img4");
-    system("./tools/linux/linux/irecovery -c ramdisk");
+    system("./tools/linux/irecovery -f ./ramdisk/ramdisk.img4");
+    system("./tools/linux/irecovery -c ramdisk");
     sleep(1);
 
-    system("./tools/linux/linux/irecovery -f ./ramdisk/devicetree.img4");
-    system("./tools/linux/linux/irecovery -c devicetree");
+    system("./tools/linux/irecovery -f ./ramdisk/devicetree.img4");
+    system("./tools/linux/irecovery -c devicetree");
     sleep(1);
 
-    system("./tools/linux/linux/irecovery -f ./ramdisk/kernelcache.img4");
+    system("./tools/linux/irecovery -f ./ramdisk/kernelcache.img4");
     sleep(1);
 
-    system("./tools/linux/linux/irecovery -c bootx");
+    system("./tools/linux/irecovery -c bootx");
     sleep(1);
 
     printf("[*] Booted into Ramdisk!");
@@ -194,16 +192,16 @@ void boot()
 
     helperDFU();
     printf("[*] Entering PwnDFU mode\n");
-    system("./tools/linux/linux/ipwnder");
+    system("./tools/linux/ipwnder");
 
     printf("[*] Sending boot files...\n");
-    system("./tools/linux/linux/irecovery -f ./7.1.2/iBSS.img4");
-    system("./tools/linux/linux/irecovery -f ./7.1.2/iBSS.img4");
-    system("./tools/linux/linux/irecovery -f ./7.1.2/iBEC.img4");
-    system("./tools/linux/linux/irecovery -f ./7.1.2/devicetree.img4");
-    system("./tools/linux/linux/irecovery -c devicetree");
-    system("./tools/linux/linux/irecovery -f ./7.1.2/kernelcache.img4");
-    system("./tools/linux/linux/irecovery -c bootx");
+    system("./tools/linux/irecovery -f ./7.1.2/iBSS.img4");
+    system("./tools/linux/irecovery -f ./7.1.2/iBSS.img4");
+    system("./tools/linux/irecovery -f ./7.1.2/iBEC.img4");
+    system("./tools/linux/irecovery -f ./7.1.2/devicetree.img4");
+    system("./tools/linux/irecovery -c devicetree");
+    system("./tools/linux/irecovery -f ./7.1.2/kernelcache.img4");
+    system("./tools/linux/irecovery -c bootx");
     
     printf("[*] Booted into iOS 7.1.2 (11D257)");
 
