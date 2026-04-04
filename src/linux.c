@@ -66,6 +66,11 @@ void prepareNAND()
 
 void sendFS()
 {
+    
+    printf("[*] Waiting 60 seconds for ramdisk to boot and run server");
+    sleep(60);
+    
+    system("./tools/iproxy 2222 44 >/dev/null 2>&1 &");
 
     system("./tools/linux/linux/iproxy 2222 44 >/dev/null 2>&1 &");
 
